@@ -3,10 +3,14 @@ import { STATUS_CODES } from "node:http";
 import { HttpError } from "./errors";
 import type { Database } from "./database/connection";
 import { PgStudentRepository } from "./modules/students/students.repository";
+import { PgCourseRepository } from "./modules/courses/courses.repository";
 import { StudentsService } from "./modules/students/students.service";
 import { studentsRoutes } from "./modules/students/students.routes";
 import { coursesRoutes } from "./modules/courses/courses.routes";
 import { enrollmentsRoutes } from "./modules/enrollments/enrollments.routes";
+import { CoursesService } from "./modules/courses/courses.service";
+import { EnrollmentsService } from "./modules/enrollments/enrollments.service";
+import { PgEnrollmentRepository } from "./modules/enrollments/enrollments.repository";
 
 export function createApp(db: Database) {
   const app = express();
@@ -18,13 +22,17 @@ export function createApp(db: Database) {
 
   // Students recebe suas dependências na composição da aplicação.
   const studentRepository = new PgStudentRepository(db);
+  const courseRepository = new PgCourseRepository(db);
+  const enrollmentRepository = new PgEnrollmentRepository(db);
 
   const studentsService = new StudentsService(studentRepository);
+  const coursesService = new CoursesService(courseRepository);
+  const enrollmentsService = new EnrollmentsService(enrollmentRepository);
 
-  // Encaminha as requisições para as rotas de cada recurso.
+  // rotas
   app.use("/api/students", studentsRoutes(studentsService));
-  app.use("/api/courses", coursesRoutes());
-  app.use("/api/enrollments", enrollmentsRoutes());
+  app.use("/api/courses", coursesRoutes(coursesService));
+  app.use("/api/enrollments", enrollmentsRoutes(enrollmentsService));
 
   app.use((_req, _res, next) => {
     next(new HttpError(404, "Rota não encontrada."));

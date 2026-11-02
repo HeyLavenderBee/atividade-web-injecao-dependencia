@@ -5,7 +5,7 @@ import { isForeignKeyViolation } from "../../database/foreign-key-violation";
 import { PgEnrollmentRepository } from "./enrollments.repository";
 
 export class EnrollmentsService {
-  private readonly repository = new PgEnrollmentRepository();
+  constructor(private readonly repository: PgEnrollmentRepository) {}
 
   async create(input: unknown) {
     const data = validateBody(input);

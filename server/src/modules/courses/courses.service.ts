@@ -4,7 +4,7 @@ import { positiveInteger, validateBody, validateName } from "../../validation";
 import { PgCourseRepository } from "./courses.repository";
 
 export class CoursesService {
-  private readonly repository = new PgCourseRepository();
+  constructor(private readonly repository: PgCourseRepository) {}
 
   async create(input: unknown) {
     const data = validateBody(input);
